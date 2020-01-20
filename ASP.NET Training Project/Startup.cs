@@ -13,6 +13,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.SqlServer;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Identity;
 
 namespace ASP.NET_Training_Project
 {
@@ -38,6 +39,14 @@ namespace ASP.NET_Training_Project
                 options.User.RequireUniqueEmail = true;
             }).AddEntityFrameworkStores<IdentityDataContext>();
 
+            //This protects against excessive authentication attempts
+            services.Configure<IdentityOptions>(options => 
+            {
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.AllowedForNewUsers = true;
+            });
+
             services.AddDbContext<IdentityDataContext>(cfg =>
             {
                 cfg.UseSqlServer(configuration.GetConnectionString("IdentityDataContext"));
@@ -48,7 +57,11 @@ namespace ASP.NET_Training_Project
             services.AddTransient<FeatureToggles>(x => new FeatureToggles { 
                 DeveloperExceptions = configuration.GetValue<bool>("FeatureToggles:DeveloperExceptions")
             });
-            services.AddMvc(option => option.EnableEndpointRouting = false);
+            services.AddMvc(options =>
+            {
+                options.EnableEndpointRouting = false;
+                options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+            });
 
             services.AddDbContext<BlogDataContext>(options =>
             {
