@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.SqlServer;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace ASP.NET_Training_Project
 {
@@ -77,7 +78,14 @@ namespace ASP.NET_Training_Project
             }
             );
 
+            //Not neccessary if deplyoying with IIS
+            /*
+            app.UseForwardedHeaders(new ForwardedHeadersOptions 
+            { 
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
             app.UseAuthentication();
+            */
 
             app.UseMvc(routes => {
                 routes.MapRoute("Default", "{controller=Home}/{action=Index}/{id:int?}");
